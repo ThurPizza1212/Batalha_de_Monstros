@@ -1,0 +1,116 @@
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+public class Jogador {
+    private String nome;
+    private int[] monstroId;
+    private double[] vidaMonstro;
+    private double[] vidaAtual;
+    private int[][] limiteGolpeAtual;
+
+    public Jogador(){
+        this.monstroId = new int[3];
+        this.vidaMonstro = new double[3];
+        this.vidaAtual = new double[3];
+        this.limiteGolpeAtual = new int[3][3];
+    }
+
+    //nome player
+    public String getNome(){
+        return this.nome;
+    }
+    public void setNome(String umNome){
+        this.nome = umNome;
+    }
+
+    //vida maxima
+    public double getVidaMonstro(int pos){
+        return this.vidaMonstro[pos];
+    }
+    public void setVidaMonstro(int pos, double umaVida){
+        this.vidaMonstro[pos]=umaVida;
+    }
+    //vida atual
+    public double getVidaAtual(int pos){
+            return this.vidaAtual[pos];
+    }
+    public void setVidaAtual(int pos, double umaVidaAtual){
+        this.vidaAtual[pos]=umaVidaAtual;
+    }
+    //id monstro
+    public int getMonstroId(int pos){
+        return this.monstroId[pos];
+    }
+    public void setMonstroId(int pos,int umId){
+        this.monstroId[pos]=umId;
+    }
+    //golpes limite
+    public int getLimitepGolpeAtual(int pos){
+        return this.limiteGolpeAtual[pos][0];
+    }
+    public void setLimitepGolpeAtual(int pos,int umLimite){
+        this.limiteGolpeAtual[pos][0] = umLimite;
+    }
+    public int getLimitesGolpeAtual(int pos){
+        return this.limiteGolpeAtual[pos][1];
+    }
+    public void setLimitesGolpeAtual(int pos,int umLimite){
+        this.limiteGolpeAtual[pos][1] = umLimite ;
+    }
+    public void escolhaJogador(Monstro monstros) throws InterruptedException{
+        Scanner input = new Scanner(System.in);      
+        int erroEscolha;
+        int[] idEscolhido = new int[3];
+        this.nome = input.nextLine();
+        for (int i = 0; i < 3; i++) {
+            do {
+                erroEscolha = 0;
+                System.out.println("Olá " + this.getNome() + ",escolha seus monstros  Restam:" + (3 - i) + "\n\n");
+                monstros.imprimeMonstro();
+                System.out.println("\n\nUse o ID para escolher o monstro:");
+                idEscolhido[i] = input.nextInt();
+                if (idEscolhido[i] < 0 || idEscolhido[i] > monstros.getPosFinal()) {
+                    System.out.println("O Monstro escolhido não existe.");
+                    erroEscolha++;
+                    Thread.sleep(700);
+                    for (int j = 0; j < 290; j++) {
+                        System.out.print("\n");//limpa a tela
+                    }
+                }
+                if (i == 1) {
+                    if (idEscolhido[i] == this.getMonstroId(i - 1)) {
+                        System.out.println("Você não pode pegar monstros repetidos.");
+                        erroEscolha++;
+                        Thread.sleep(700);
+                        for (int j = 0; j < 290; j++) {
+                            System.out.print("\n");//limpa a tela
+                        }
+                    }
+                }
+                if (i == 2) {
+                    if (idEscolhido[i] == this.getMonstroId(i - 1)
+                            || idEscolhido[i] == this.getMonstroId(i - 2)) {
+                        System.out.println("Você não pode pegar monstros repetidos.");
+                        erroEscolha++;
+                        Thread.sleep(700);
+                        for (int j = 0; j < 290; j++) {
+                            System.out.print("\n");//limpa a tela
+                        }
+                    }
+
+                }
+            } while (erroEscolha != 0);
+            System.out.println("Monstro escolhido:" + monstros.getNomeMonstro(idEscolhido[i]));
+            this.setMonstroId(i,idEscolhido[i]);
+            this.setVidaMonstro(i, monstros.getVida(idEscolhido[i]));
+            this.setVidaAtual(i, monstros.getVida(idEscolhido[i]));
+            this.limiteGolpeAtual[i][0] = monstros.getpGolpe(idEscolhido[i]).getLimite();
+            this.limiteGolpeAtual[i][1] = monstros.getsGolpe(idEscolhido[i]).getLimite();
+            Thread.sleep(900);
+            for (int j = 0; j < 290; j++) {
+                System.out.print("\n");//limpa a tela
+            }
+
+        }
+    }
+}
