@@ -1,0 +1,117 @@
+public class Monstro {
+    private int id[];
+    private String nome[];
+    private String elemento[];
+    private double vida[];
+    private double forca[];
+    private double defesa[];
+    private double velocidade[];
+    private Golpe golpes[][];
+    private int tamMax = 6;
+    private int posFinal;
+
+    public Monstro() {
+        this.id = new int[tamMax];
+        this.nome = new String[tamMax];
+        this.elemento = new String[tamMax];
+        this.vida = new double[tamMax];
+        this.forca = new double[tamMax];
+        this.defesa = new double[tamMax];
+        this.velocidade = new double[tamMax];
+        this.golpes = new Golpe[tamMax][2];
+        this.posFinal = -1;
+
+    }
+    public String getNomeMonstro(int umId){
+        return this.nome[umId];
+    }
+    public String getElemento(int pos){
+        return this.elemento[pos];
+    }
+    public int getPosFinal(){
+        return this.posFinal;
+    }
+    public double getVida(int pos){
+        return this.vida[pos];
+    }
+    public double getForca(int pos){
+        return this.forca[pos];
+    }
+    public double getDefesa(int pos){
+        return this.defesa[pos];
+    }
+    public double getVelocidade(int pos){
+        return this.velocidade[pos];
+    }
+    public Golpe getpGolpe(int pos){
+        return this.golpes[pos][0];
+    }
+    public Golpe getsGolpe(int pos){
+        return this.golpes[pos][1];
+    }
+   
+    public boolean isEmpty() {
+        if (this.posFinal == -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // cheia
+    public boolean isFull() {
+        if (this.posFinal == (this.tamMax - 1)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // enqueue
+    public void enqueue(String umNome, String umElemento, double umaVida, double umaForca, double umaDefesa,
+            double umaVelocidade,Golpe pGolpe,Golpe sGolpe) {
+        if (isFull()) {
+            System.out.println("Não inseriu elemento - fila cheia");
+        } else {
+            this.id[this.posFinal+1]=(this.posFinal+1);
+            this.nome[this.posFinal + 1] = umNome;
+            this.elemento[this.posFinal + 1] = umElemento;
+            this.vida[this.posFinal + 1] = umaVida;
+            this.forca[this.posFinal + 1] = umaForca;
+            this.defesa[this.posFinal + 1] = umaDefesa;
+            this.velocidade[this.posFinal + 1] = umaVelocidade;
+            this.golpes[this.posFinal+1][0] = pGolpe;
+            this.golpes[this.posFinal+1][1] = sGolpe;
+
+            
+
+            this.posFinal++;
+        }
+    }
+
+    public void imprimeMonstro() {
+
+        
+        if (isEmpty()) {
+            System.out.println("Nada a imprimir - fila vazia");
+        } else {
+            System.out.println(String.format("%5s %5s %10s %5s %10s %5s %5s %5s %5s %5s %5s %4s %10s","Id","|", "Nome", "|",
+                    "Elemento", "|", "Vida", "|", "Força", "|", "Defesa", "|",
+                    "Velocidade\n----------|----------------|----------------|-----------|-----------|-----------|---------------"));
+                              // ---------------|----------------|----------------|----------------|----------------|---------------
+
+            for (int i = 0; i <= this.posFinal; i++) {
+                System.out.println(String.format("%5d %5s %10s %5s %10s %5s %5.0f %5s %5.0f %5s %5.0f %5s %5.0f",this.id[i],"|",
+                        this.nome[i], "|", this.elemento[i], "|", this.vida[i], "|", this.forca[i], "|", this.defesa[i],
+                        "|", this.velocidade[i]));
+
+            }
+        }
+        System.out.printf("\n");
+
+    }
+    public void procuraMonstro(int umId){
+
+        System.out.println("");
+    }
+}
