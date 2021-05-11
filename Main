@@ -1,0 +1,496 @@
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Scanner input = new Scanner(System.in);
+        Batalha jogo = new Batalha();
+        Jogador jogadorUm = new Jogador();
+        Jogador jogadorDois = new Jogador();
+        Monstro monstros = new Monstro();
+        String nome;
+
+        int fimPartida = 0;
+        int erroMenu = 0;
+        int erroAtaque = 0;
+        int erroTroca = 0;
+        int erroEscolha = 0;
+        int[] idEscolhido = new int[3];
+        double danoTotal = 0;
+        int round = 0;
+        int escolhaAtaqueJogadorUm = 0;
+        int escolhaAtaqueJogadorDois = 0;
+        int escolhaMenuJogadorUm;
+        int escolhaMenuJogadorDois;
+        String escolhaMenuJogadorUmStr = "";
+        String escolhaMenuJogadorDoisStr = "";
+
+        // golpes ilimitados
+        Golpe brasa = new Golpe(6, "BRASA", "FOGO", "UMA PEQUENA BRASA SAI DA BOCA DO MONSTRO.", 4, 99999);
+        Golpe bolhas = new Golpe(7, "BOLHAS", "AGUA", "BOLHAS DE AGUA ATINGEM O INIMIGO.", 3, 99999);
+        Golpe florescer = new Golpe(8, "FLORESCER", "PLANTA",
+                "FLORES NASCEM EMBAIXO DO INIMIGO, CAUSANDO DANO COM SEUS ESPINHOS", 2, 99999);
+        Golpe mordidaEletrica = new Golpe(9, "MORDIDA ELETRICA", "ELETRICO",
+                "O MONSTRO INIMIGO É MORDIDO E RECEBE UMA DESCARGA ELETRICA", 3, 99999);
+        Golpe veneno = new Golpe(10, "VENENO", "INSETO", "UM JATO DE VENENO ATINGE O INIMIGO.", 4, 99999);
+        Golpe pedras = new Golpe(11, "PEDRAS", "TERRA", "UMA PEDRA É ARREMÇADA NO INIMIGO", 5, 99999);
+
+        // golpes limitados(especiais)
+        Golpe brasaChamuscante = new Golpe(0, "BRASA CHAMUSCANTE", "FOGO",
+                "UM BAFO DE FOGO ATINGE OS INIMIGOS PRÓXIMOS.", 11, 4);
+        Golpe tsunami = new Golpe(1, "TSUNAMI", "AGUA", "UMA ONDA GIGANTE AFOGA MONSTROS INIMIGOS.", 9, 4);
+        Golpe folhasCortantes = new Golpe(2, "FOLHAS CORTANTES", "PLANTA",
+                "FOLHAS PONTIAGUDAS ACERTAM INIMIGOS PRÓXIMOS.", 6, 8);
+        Golpe ondaEletrizante = new Golpe(3, "ONDA ELETRIZANTE", "ELETRICO",
+                "UMA ONDA DE CHOQUE ELETROCUTA INIMIGOS PRÓXIMOS.", 12, 3);
+        Golpe ventoPrateado = new Golpe(4, "VENTO PRATEADO", "INSETO",
+                "O MONSTRO BATE SUAS ASAS, EXALANDO UM ENORME VENTO.", 8, 6);
+        Golpe terremoto = new Golpe(5, "TERREMOTO", "TERRA", "O CHÃO TREME ATINGINDO MONSTROS PRÓXIMOS.", 7, 5);
+
+        // monstros
+        monstros.enqueue("CHARMANDER", "FOGO", 20, 18, 12, 13, brasa, brasaChamuscante);
+        monstros.enqueue("SQUIRTLE", "AGUA", 18, 14, 18, 12, bolhas, tsunami);
+        monstros.enqueue("BULBASAURO", "PLANTA", 22, 16, 14, 18, florescer, folhasCortantes);
+        monstros.enqueue("PIKACHU", "ELETRICO", 19, 17, 13, 20, mordidaEletrica, ondaEletrizante);
+        monstros.enqueue("SCYTHER", "INSETO", 25, 14, 10, 20, veneno, ventoPrateado);
+        monstros.enqueue("RHYHORN", "TERRA", 20, 14, 20, 9, pedras, terremoto);
+
+        System.out.println(
+                "-----------------------------------\n|       Batalha de Monstros       |\n-----------------------------------\n---->Insira seu nome Jogador 1:");
+        jogadorUm.escolhaJogador(monstros);
+        System.out.println(
+                "-----------------------------------\n|       Batalha de Monstros       |\n-----------------------------------\n---->Insira seu nome Jogador 2:");
+        jogadorDois.escolhaJogador(monstros);
+
+        System.out.println("---------Que a batalha comece!---------");
+
+        do {
+            round++;
+            do {
+                erroMenu = 0;
+                System.out.printf(
+                        "\tVocê está enfrentando: " + jogadorDois.getNome() + "\nMonstro inimigo:"
+                                + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorDois.getMonstroId(0)) + ") --- HP: %.2f/%.2f" + " \n",
+                        jogadorDois.getVidaAtual(0), jogadorDois.getVidaMonstro(0));
+                System.out.printf(
+                        "\tROUND " + round + "\n" + jogadorUm.getNome() + "\nSeu monstro atual:"
+                                + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorUm.getMonstroId(0)) + ") --- HP: %.2f/%.2f"
+                                + " \no que você deseja fazer?\n1 - Atacar\n2 - Trocar\n",
+                        jogadorUm.getVidaAtual(0), jogadorUm.getVidaMonstro(0));
+
+                escolhaMenuJogadorUm = input.nextInt();
+                danoTotal = 0;
+                if (escolhaMenuJogadorUm == 1) {
+                    // atacar
+                    do {
+                        erroAtaque = 0;
+                        System.out.println("\nEscolha seu golpe:");
+                        System.out.println(String.format("%1s %8s %1s %1s %5s %9s %5d %1s %5d ", "1-",
+                                monstros.getpGolpe(jogadorUm.getMonstroId(0)).getNome(), ":", "(",
+                                monstros.getpGolpe(jogadorUm.getMonstroId(0)).getElemento(), ") USOS:",
+                                jogadorUm.getLimitepGolpeAtual(0), "/",
+                                monstros.getpGolpe(jogadorUm.getMonstroId(0)).getLimite()));
+
+                        System.out.println(String.format("%1s %8s %1s %1s %5s %9s %2d %1s %2d ", "2-",
+                                monstros.getsGolpe(jogadorUm.getMonstroId(0)).getNome(), ":", "(",
+                                monstros.getsGolpe(jogadorUm.getMonstroId(0)).getElemento(), ") USOS:",
+                                jogadorUm.getLimitesGolpeAtual(0), "/",
+                                monstros.getsGolpe(jogadorUm.getMonstroId(0)).getLimite()));
+                        System.out.println("Para voltar use a tecla 7");
+
+                        escolhaAtaqueJogadorUm = input.nextInt();
+
+                        if (escolhaAtaqueJogadorUm == 1) {
+                            if (jogadorUm.getLimitepGolpeAtual(0) <= 0) {
+                                System.out.println("Não há mais usos para esse ataque, use outro.");
+                                Thread.sleep(1000);
+                                for (int j = 0; j < 290; j++) {
+                                    System.out.print("\n");// limpa a tela
+                                }                                
+                                erroAtaque++;
+                            } else {
+                                escolhaMenuJogadorUmStr = jogadorUm.getNome() + " Escolheu atacar com seu "
+                                        + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " usando o golpe: "
+                                        + monstros.getpGolpe(jogadorUm.getMonstroId(0)).getNome();
+                            }
+                        } else if (escolhaAtaqueJogadorUm == 2) {
+                            if (jogadorUm.getLimitesGolpeAtual(0) <= 0) {
+                                System.out.println("Não há mais usos para esse ataque, use outro.");
+                                Thread.sleep(1000);
+                                for (int j = 0; j < 290; j++) {
+                                    System.out.print("\n");// limpa a tela
+                                }
+                                erroAtaque++;
+                            } else {
+                                escolhaMenuJogadorUmStr = jogadorUm.getNome() + " Escolheu atacar com seu "
+                                        + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " usando o golpe: "
+                                        + monstros.getsGolpe(jogadorUm.getMonstroId(0)).getNome();
+                            }
+                        } else if (escolhaAtaqueJogadorUm == 7) {
+                            System.out.println("Voltando...");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroMenu++;
+
+                        } else {
+                            System.out.println("Opção inválida.\nEscolha uma opção válida");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroAtaque++;
+                        }
+                    } while (erroAtaque != 0);
+                } else if (escolhaMenuJogadorUm == 2) {
+                    do {
+                        erroTroca = 0;
+                        System.out.println("Seus monstros:\n" + "\t(Atual)1 - "
+                                + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorUm.getMonstroId(0)) + ")\n" + "\t(bolsa)2 - "
+                                + monstros.getNomeMonstro(jogadorUm.getMonstroId(1)) + " ("
+                                + monstros.getElemento(jogadorUm.getMonstroId(1)) + ")\n" + "\t(bolsa)3 - "
+                                + monstros.getNomeMonstro(jogadorUm.getMonstroId(2)) + " ("
+                                + monstros.getElemento(jogadorUm.getMonstroId(2)) + ")\n");
+
+                        System.out.println("Qual monstro você deseja pegar?(para voltar use a tecla 7)");
+                        int escolhaTrocaJogadorUm = input.nextInt();
+
+                        if (escolhaTrocaJogadorUm == 1) {
+                            System.out.println("Você já está usando esse monstro");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroTroca++;
+                        } else if (escolhaTrocaJogadorUm == 2 || escolhaTrocaJogadorUm == 3) {
+                            if (jogadorUm.getVidaAtual(escolhaTrocaJogadorUm - 1) <= 0) {
+                                System.out.println("Este monstro está desmaiado, escolha um que ainda tenha energia.");
+                                Thread.sleep(1000);
+                                for (int j = 0; j < 290; j++) {
+                                    System.out.print("\n");// limpa a tela
+                                }
+
+                                erroTroca++;
+                            } else {
+                                int tempoMonstroId = jogadorUm.getMonstroId(0);
+                                double tempoVidaMonstro = jogadorUm.getVidaMonstro(0);
+                                double tempoVidaAtual = jogadorUm.getVidaAtual(0);
+                                int tempoLimitepGolpeAtual = jogadorUm.getLimitepGolpeAtual(0);
+                                int tempoLimitesGolpeAtual = jogadorUm.getLimitesGolpeAtual(0);
+
+                                jogadorUm.setMonstroId(0, jogadorUm.getMonstroId(escolhaTrocaJogadorUm - 1));
+                                jogadorUm.setVidaMonstro(0, jogadorUm.getVidaMonstro(escolhaTrocaJogadorUm - 1));
+                                jogadorUm.setVidaAtual(0, jogadorUm.getVidaAtual(escolhaTrocaJogadorUm - 1));
+                                jogadorUm.setLimitepGolpeAtual(0,
+                                        jogadorUm.getLimitepGolpeAtual(escolhaTrocaJogadorUm - 1));
+                                jogadorUm.setLimitesGolpeAtual(0,
+                                        jogadorUm.getLimitesGolpeAtual(escolhaTrocaJogadorUm - 1));
+
+                                jogadorUm.setMonstroId(escolhaTrocaJogadorUm - 1, tempoMonstroId);
+                                jogadorUm.setVidaMonstro(escolhaTrocaJogadorUm - 1, tempoVidaMonstro);
+                                jogadorUm.setVidaAtual(escolhaTrocaJogadorUm - 1, tempoVidaAtual);
+                                jogadorUm.setLimitepGolpeAtual(escolhaTrocaJogadorUm - 1, tempoLimitepGolpeAtual);
+                                jogadorUm.setLimitesGolpeAtual(escolhaTrocaJogadorUm - 1, tempoLimitesGolpeAtual);
+
+                                System.out.println("Monstro trocado com sucesso:\n\t"
+                                        + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " ("
+                                        + monstros.getElemento(jogadorUm.getMonstroId(0)) + ")\n");
+                                escolhaMenuJogadorUmStr = monstros.getNomeMonstro(tempoMonstroId) + " DE "
+                                        + jogadorUm.getNome() + " retornou para a bolsa\n"
+                                        + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " entrou na batalha.";
+                            }
+                        } else if (escolhaTrocaJogadorUm == 7) {
+                            System.out.println("Voltando...");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroMenu++;
+                        } else {
+                            System.out.println("Opção inválida.\nEscolha uma opção válida");
+                            erroTroca++;
+                        }
+                    } while (erroTroca != 0);
+                } else {
+                    System.out.println("Opção inválida.\nEscolha uma opção válida");
+                    erroMenu++;
+                }
+            } while (erroMenu != 0);
+            Thread.sleep(700);
+            for (int j = 0; j < 290; j++) {
+                System.out.print("\n");// limpa a tela
+            }
+            // jogador 2
+            do {
+                erroMenu = 0;
+                System.out.printf(
+                        "\tVocê está enfrentando: " + jogadorUm.getNome() + "\nMonstro inimigo:"
+                                + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorUm.getMonstroId(0)) + ") --- HP: %.2f/%.2f" + "\n",
+                        jogadorUm.getVidaAtual(0), jogadorUm.getVidaMonstro(0));
+                System.out.printf(
+                        "\tROUND " + round + "\n" + jogadorDois.getNome() + "\nSeu monstro atual:"
+                                + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorDois.getMonstroId(0)) + ") --- HP: %.2f/%.2f"
+                                + " \no que você deseja fazer?\n1 - Atacar\n2 - Trocar\n",
+                        jogadorDois.getVidaAtual(0), jogadorDois.getVidaMonstro(0));
+
+                escolhaMenuJogadorDois = input.nextInt();
+                danoTotal = 0;
+                if (escolhaMenuJogadorDois == 1) {
+                    // atacar
+                    do {
+                        erroAtaque = 0;
+                        System.out.println("\nEscolha seu golpe:");
+                        System.out.println(String.format("%1s %8s %1s %1s %5s %9s %5d %1s %5d ", "1-",
+                                monstros.getpGolpe(jogadorDois.getMonstroId(0)).getNome(), ":", "(",
+                                monstros.getpGolpe(jogadorDois.getMonstroId(0)).getElemento(), ") USOS:",
+                                jogadorDois.getLimitepGolpeAtual(0), "/",
+                                monstros.getpGolpe(jogadorDois.getMonstroId(0)).getLimite()));
+
+                        System.out.println(String.format("%1s %8s %1s %1s %5s %9s %2d %1s %2d ", "2-",
+                                monstros.getsGolpe(jogadorDois.getMonstroId(0)).getNome(), ":", "(",
+                                monstros.getsGolpe(jogadorDois.getMonstroId(0)).getElemento(), ") USOS:",
+                                jogadorDois.getLimitesGolpeAtual(0), "/",
+                                monstros.getsGolpe(jogadorDois.getMonstroId(0)).getLimite()));
+                        System.out.println("Para voltar use a tecla 7");
+
+                        escolhaAtaqueJogadorDois = input.nextInt();
+
+                        if (escolhaAtaqueJogadorDois == 1) {
+                            if (jogadorDois.getLimitepGolpeAtual(0) <= 0) {
+                                System.out.println("Não há mais usos para esse ataque, use outro.");
+                                Thread.sleep(1000);
+                                for (int j = 0; j < 290; j++) {
+                                    System.out.print("\n");// limpa a tela
+                                }
+                                erroAtaque++;
+                            } else {
+                            escolhaMenuJogadorDoisStr = jogadorDois.getNome() + " Escolheu atacar com seu "
+                                    + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " usando o golpe: "
+                                    + monstros.getpGolpe(jogadorDois.getMonstroId(0)).getNome();
+                            }
+                        } else if (escolhaAtaqueJogadorDois == 2) {
+                            if (jogadorDois.getLimitesGolpeAtual(0) <= 0) {
+                                System.out.println("Não há mais usos para esse ataque, use outro.");
+                                Thread.sleep(1000);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                                erroAtaque++;
+                            } else {
+                            escolhaMenuJogadorDoisStr = jogadorDois.getNome() + " Escolheu atacar com seu "
+                                    + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " usando o golpe: "
+                                    + monstros.getsGolpe(jogadorDois.getMonstroId(0)).getNome();
+                            }
+                        } else if (escolhaAtaqueJogadorDois == 7) {
+                            System.out.println("Voltando...");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroMenu++;
+                        } else {
+                            System.out.println("Opção inválida.\nEscolha uma opção válida");
+                            erroAtaque++;
+                        }
+                    } while (erroAtaque != 0);
+                } else if (escolhaMenuJogadorDois == 2) {
+                    do {
+                        erroTroca = 0;
+                        System.out.println("Seus monstros:\n" + "\t(Atual)1 - "
+                                + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " ("
+                                + monstros.getElemento(jogadorDois.getMonstroId(0)) + ")\n" + "\t(bolsa)2 - "
+                                + monstros.getNomeMonstro(jogadorDois.getMonstroId(1)) + " ("
+                                + monstros.getElemento(jogadorDois.getMonstroId(1)) + ")\n" + "\t(bolsa)3 - "
+                                + monstros.getNomeMonstro(jogadorDois.getMonstroId(2)) + " ("
+                                + monstros.getElemento(jogadorDois.getMonstroId(2)) + ")\n");
+
+                        System.out.println("Qual monstro você deseja pegar?(para voltar use a tecla 7)");
+                        int escolhaTrocaJogadorDois = input.nextInt();
+
+                        if (escolhaTrocaJogadorDois == 1) {
+                            System.out.println("Você já está usando esse monstro");
+                        } else if (escolhaTrocaJogadorDois == 2 || escolhaTrocaJogadorDois == 3) {
+                            if (jogadorDois.getVidaAtual(escolhaTrocaJogadorDois - 1) <= 0) {
+                                System.out.println("Este monstro está desmaiado, escolha um que ainda tenha energia.");
+                                Thread.sleep(1000);
+                                for (int j = 0; j < 290; j++) {
+                                    System.out.print("\n");// limpa a tela
+                                }
+
+                                erroTroca++;
+                            } else {
+                                int tempoMonstroId = jogadorDois.getMonstroId(0);
+                                double tempoVidaMonstro = jogadorDois.getVidaMonstro(0);
+                                double tempoVidaAtual = jogadorDois.getVidaAtual(0);
+                                int tempoLimitepGolpeAtual = jogadorDois.getLimitepGolpeAtual(0);
+                                int tempoLimitesGolpeAtual = jogadorDois.getLimitesGolpeAtual(0);
+
+                                jogadorDois.setMonstroId(0, jogadorDois.getMonstroId(escolhaTrocaJogadorDois - 1));
+                                jogadorDois.setVidaMonstro(0, jogadorDois.getVidaMonstro(escolhaTrocaJogadorDois - 1));
+                                jogadorDois.setVidaAtual(0, jogadorDois.getVidaAtual(escolhaTrocaJogadorDois - 1));
+                                jogadorDois.setLimitepGolpeAtual(0,
+                                        jogadorDois.getLimitepGolpeAtual(escolhaTrocaJogadorDois - 1));
+                                jogadorDois.setLimitesGolpeAtual(0,
+                                        jogadorDois.getLimitesGolpeAtual(escolhaTrocaJogadorDois - 1));
+
+                                jogadorDois.setMonstroId(escolhaTrocaJogadorDois - 1, tempoMonstroId);
+                                jogadorDois.setVidaMonstro(escolhaTrocaJogadorDois - 1, tempoVidaMonstro);
+                                jogadorDois.setVidaAtual(escolhaTrocaJogadorDois - 1, tempoVidaAtual);
+                                jogadorDois.setLimitepGolpeAtual(escolhaTrocaJogadorDois - 1, tempoLimitepGolpeAtual);
+                                jogadorDois.setLimitesGolpeAtual(escolhaTrocaJogadorDois - 1, tempoLimitesGolpeAtual);
+
+                                System.out.println("Monstro trocado com sucesso:\n\t"
+                                        + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " ("
+                                        + monstros.getElemento(jogadorDois.getMonstroId(0)) + ")\n");
+
+                                escolhaMenuJogadorDoisStr = monstros.getNomeMonstro(tempoMonstroId) + " DE "
+                                        + jogadorDois.getNome() + " retornou para a bolsa\n"
+                                        + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)) + " entrou na batalha.";
+                            }
+                        } else if (escolhaTrocaJogadorDois == 7) {
+                            System.out.println("Voltando...");
+                            Thread.sleep(700);
+                            for (int j = 0; j < 290; j++) {
+                                System.out.print("\n");// limpa a tela
+                            }
+                            erroMenu++;
+                        } else {
+                            System.out.println("Opção inválida.\nEscolha uma opção válida");
+                            erroTroca++;
+                        }
+                    } while (erroTroca != 0);
+                } else {
+                    System.out.println("Opção inválida.\nEscolha uma opção válida");
+                    erroMenu++;
+                }
+            } while (erroMenu != 0);
+            Thread.sleep(700);
+            for (int j = 0; j < 290; j++) {
+                System.out.print("\n");// limpa a tela
+            }
+            if (escolhaMenuJogadorUm == 1 && escolhaMenuJogadorDois == 1) {
+                // os dois escolhem atacar
+                if (monstros.getVelocidade(jogadorUm.getMonstroId(0)) > monstros
+                        .getVelocidade(jogadorDois.getMonstroId(0))) {
+
+                    System.out.println(jogadorUm.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorUmStr);
+                    danoTotal = jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+
+                    if (danoTotal != 0.0) {
+                        System.out.println(jogadorDois.getNome() + " faz a segunda ação " + escolhaMenuJogadorDoisStr);
+                        jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+                    }
+
+                } else if (monstros.getVelocidade(jogadorUm.getMonstroId(0)) < monstros
+                        .getVelocidade(jogadorDois.getMonstroId(0))) {
+                    System.out.println(jogadorDois.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorDoisStr);
+                    danoTotal = jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+
+                    if (danoTotal != 0.0) {
+                        System.out.println(jogadorUm.getNome() + " faz a segunda ação " + escolhaMenuJogadorUmStr);
+                        jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+                    }
+
+                } else {
+
+                    if (monstros.getForca(jogadorUm.getMonstroId(0)) > monstros.getForca(jogadorDois.getMonstroId(0))) {
+                        System.out.println(jogadorUm.getNome() + " faz a primeira ação\n" + escolhaMenuJogadorUmStr);
+                        danoTotal = jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+
+                        if (danoTotal != 0.0) {
+                            System.out.println(
+                                    jogadorDois.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorDoisStr);
+                            jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+                        }
+
+                    } else if (monstros.getForca(jogadorUm.getMonstroId(0)) < monstros
+                            .getForca(jogadorDois.getMonstroId(0))) {
+                        System.out
+                                .println(jogadorDois.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorDoisStr);
+                        danoTotal = jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+
+                        if (danoTotal != 0) {
+                            System.out.println(jogadorUm.getNome() + " faz a segunda ação\n" + escolhaMenuJogadorUmStr);
+                            jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+                        }
+                    } else {
+                        if (monstros.getDefesa(jogadorUm.getMonstroId(0)) > monstros
+                                .getDefesa(jogadorDois.getMonstroId(0))) {
+                            System.out
+                                    .println(jogadorUm.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorUmStr);
+                            danoTotal = jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+
+                            if (danoTotal != 0.0) {
+                                System.out.println(
+                                        jogadorDois.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorDoisStr);
+                                jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+                            }
+
+                        } else if (monstros.getDefesa(jogadorUm.getMonstroId(0)) < monstros
+                                .getDefesa(jogadorDois.getMonstroId(0))) {
+                            System.out.println(
+                                    jogadorDois.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorDoisStr);
+                            danoTotal = jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros,
+                                    escolhaAtaqueJogadorDois);
+
+                            if (danoTotal != 0.0) {
+                                System.out.println(
+                                        jogadorUm.getNome() + " faz a segunda ação \n" + escolhaMenuJogadorUmStr);
+                                jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+                            }
+                        } else {
+                            System.out
+                                    .println(jogadorUm.getNome() + " faz a primeira ação\n" + escolhaMenuJogadorUmStr);
+                            danoTotal = jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+
+                            if (danoTotal != 0.0) {
+                                System.out.println(
+                                        jogadorDois.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorDoisStr);
+                                jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+                            }
+
+                        }
+                    }
+                }
+            } else if (escolhaMenuJogadorUm == 1 && escolhaMenuJogadorDois == 2) {
+
+                System.out.println(jogadorDois.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorDoisStr);
+                Thread.sleep(700);
+                System.out.println(jogadorUm.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorUmStr);
+                jogo.ataqueJogadorUm(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorUm);
+            } else if (escolhaMenuJogadorUm == 2 && escolhaMenuJogadorDois == 1) {
+                System.out.println(jogadorUm.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorUmStr);
+                Thread.sleep(700);
+                System.out.println(jogadorDois.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorDoisStr);
+                jogo.ataqueJogadorDois(jogadorUm, jogadorDois, monstros, escolhaAtaqueJogadorDois);
+            } else if (escolhaMenuJogadorUm == 2 && escolhaMenuJogadorDois == 2) {
+                System.out.println(jogadorUm.getNome() + " faz a primeira ação\n " + escolhaMenuJogadorUmStr);
+                Thread.sleep(700);
+                System.out.println(jogadorDois.getNome() + " faz a segunda ação\n " + escolhaMenuJogadorDoisStr);
+
+            } else {
+                System.out.println("Erro desconhecido.");
+            }
+            if (jogadorUm.getVidaAtual(0) <= 0.0 && jogadorUm.getVidaAtual(1) <= 0.0
+                    && jogadorUm.getVidaAtual(2) <= 0.0) {
+                System.out.println("O jogador " + jogadorDois.getNome() + " venceu ------ PARABÉNS");
+                fimPartida++;
+            }
+            if (jogadorDois.getVidaAtual(0) <= 0.0 && jogadorDois.getVidaAtual(1) <= 0.0
+                    && jogadorDois.getVidaAtual(2) <= 0.0) {
+                System.out.println("O jogador " + jogadorUm.getNome() + " venceu ------ PARABÉNS");
+                fimPartida++;
+            }
+
+        } while (fimPartida == 0);
+
+        input.close();
+
+    }
+}
