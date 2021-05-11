@@ -1,0 +1,236 @@
+import javax.xml.namespace.QName;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+public class Batalha {
+    Batalha() {
+
+    }
+
+    public double vantagem(String elementoAtaque, String elementoDefesa) {
+        double modificador = 1.0;
+        if (elementoAtaque.equals("FOGO")) {
+            if (elementoDefesa.equals("AGUA")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else if (elementoDefesa.equals("TERRA")) {
+                modificador = 0.75;
+                System.out.println("\nO GOLPE NÃO FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("INSETO")) {
+                modificador = 1.25;
+                System.out.println("\nO GOLPE FOI EFETIVO");
+            } else if (elementoDefesa.equals("PLANTA")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+
+        } else if (elementoAtaque.equals("AGUA")) {
+            if (elementoDefesa.equals("PLANTA")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else if (elementoDefesa.equals("ELETRICO")) {
+                modificador = 0.75;
+                System.out.println("\nO GOLPE NÃO FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("TERRA")) {
+                modificador = 1.25;
+                System.out.println("\nO GOLPE FOI EFETIVO");
+            } else if (elementoDefesa.equals("FOGO")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+        } else if (elementoAtaque.equals("PLANTA")) {
+            if (elementoDefesa.equals("FOGO")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else if (elementoDefesa.equals("INSETO")) {
+                modificador = 0.75;
+                System.out.println("\nO GOLPE NÃO FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("TERRA")) {
+                modificador = 1.25;
+                System.out.println("\nO GOLPE FOI EFETIVO");
+            } else if (elementoDefesa.equals("AGUA")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+        } else if (elementoAtaque.equals("ELETRICO")) {
+            if (elementoDefesa.equals("AGUA")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("TERRA")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+        } else if (elementoAtaque.equals("INSETO")) {
+            if (elementoDefesa.equals("PLANTA")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("FOGO")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+        } else if (elementoAtaque.equals("TERRA")) {
+            if (elementoDefesa.equals("AGUA")) {
+                modificador = 0.5;
+                System.out.println("\nO GOLPE FOI POUCO EFETIVO");
+            } else if (elementoDefesa.equals("PLANTA")) {
+                modificador = 0.75;
+                System.out.println("\nO GOLPE NÃO FOI MUITO EFETIVO");
+            } else if (elementoDefesa.equals("FOGO")) {
+                modificador = 1.25;
+                System.out.println("\nO GOLPE FOI EFETIVO");
+            } else if (elementoDefesa.equals("ELETRICO")) {
+                modificador = 1.5;
+                System.out.println("\nO GOLPE FOI MUITO EFETIVO");
+            } else {
+                modificador = 1.0;
+
+            }
+        } else {
+
+            modificador = 1.0;
+        }
+
+        return modificador;
+    }
+
+    public double dano(double umaForca, double umaDefesa, double umDano) {
+        return (umaForca * umDano) / (umaDefesa * 1.5);
+    }
+
+    public double ataqueJogadorUm(Jogador jogadorUm, Jogador jogadorDois, Monstro monstros,
+            int escolhaAtaqueJogadorUm) throws InterruptedException {
+        double danoTotal = 0;
+        int id = 0;
+        if (escolhaAtaqueJogadorUm == 1) {
+
+            danoTotal = (dano(monstros.getForca(jogadorUm.getMonstroId(0)),
+                    monstros.getDefesa(jogadorDois.getMonstroId(0)),
+                    monstros.getpGolpe(jogadorUm.getMonstroId(0)).getDano()))
+                    * vantagem(monstros.getpGolpe(jogadorUm.getMonstroId(0)).getElemento(),
+                            monstros.getElemento(jogadorDois.getMonstroId(0)));
+
+            jogadorUm.setLimitepGolpeAtual(0, jogadorUm.getLimitepGolpeAtual(0) - 1);
+        } else if (escolhaAtaqueJogadorUm == 2) {
+
+            danoTotal = (dano(monstros.getForca(jogadorUm.getMonstroId(0)),
+                    monstros.getDefesa(jogadorDois.getMonstroId(0)),
+                    monstros.getsGolpe(jogadorUm.getMonstroId(0)).getDano()))
+                    * vantagem(monstros.getsGolpe(jogadorUm.getMonstroId(0)).getElemento(),
+                            monstros.getElemento(jogadorDois.getMonstroId(0)));
+            jogadorUm.setLimitesGolpeAtual(0, jogadorUm.getLimitesGolpeAtual(0) - 1);
+        }
+        System.out.printf("Dano causado: %.2f\n", danoTotal);
+        Thread.sleep(1000);
+        jogadorDois.setVidaAtual(0, jogadorDois.getVidaAtual(0) - danoTotal);
+        if (jogadorDois.getVidaAtual(0) <= 0.0) {
+            System.out.println("O monstro do " + jogadorDois.getNome() + " foi nocauteado.Ele retorna para a bolsa.");
+            Thread.sleep(1000);
+            if (jogadorDois.getVidaAtual(1) > 0.0) {
+                id = 1;
+            } else if (jogadorDois.getVidaAtual(2) > 0.0) {
+                id = 2;
+            } else {
+                System.out.println("Todos os seus monstros foram nocauteados.");
+                return 0.0;
+            }
+            int tempoMonstroId = jogadorDois.getMonstroId(0);
+            double tempoVidaMonstro = jogadorDois.getVidaMonstro(0);
+            double tempoVidaAtual = jogadorDois.getVidaAtual(0);
+            int tempoLimitepGolpeAtual = jogadorDois.getLimitepGolpeAtual(0);
+            int tempoLimitesGolpeAtual = jogadorDois.getLimitesGolpeAtual(0);
+
+            jogadorDois.setMonstroId(0, jogadorDois.getMonstroId(id));
+            jogadorDois.setVidaMonstro(0, jogadorDois.getVidaMonstro(id));
+            jogadorDois.setVidaAtual(0, jogadorDois.getVidaAtual(id));
+            jogadorDois.setLimitepGolpeAtual(0, jogadorDois.getLimitepGolpeAtual(id));
+            jogadorDois.setLimitesGolpeAtual(0, jogadorDois.getLimitesGolpeAtual(id));
+
+            jogadorDois.setMonstroId(id, tempoMonstroId);
+            jogadorDois.setVidaMonstro(id, tempoVidaMonstro);
+            jogadorDois.setVidaAtual(id, tempoVidaAtual);
+            jogadorDois.setLimitepGolpeAtual(id, tempoLimitepGolpeAtual);
+            jogadorDois.setLimitesGolpeAtual(id, tempoLimitesGolpeAtual);
+            System.out.println("Entra em batalha: " + monstros.getNomeMonstro(jogadorDois.getMonstroId(0)));
+            Thread.sleep(1000);
+            return 0.0;
+        }
+        return danoTotal;
+    }
+
+    public double ataqueJogadorDois(Jogador jogadorUm, Jogador jogadorDois, Monstro monstros,
+            int escolhaAtaqueJogadorDois) throws InterruptedException {
+        double danoTotal = 0;
+        int id = 0;
+        if (escolhaAtaqueJogadorDois == 1) {
+
+            danoTotal = (dano(monstros.getForca(jogadorDois.getMonstroId(0)),
+                    monstros.getDefesa(jogadorUm.getMonstroId(0)),
+                    monstros.getpGolpe(jogadorDois.getMonstroId(0)).getDano()))
+                    * vantagem(monstros.getpGolpe(jogadorDois.getMonstroId(0)).getElemento(),
+                            monstros.getElemento(jogadorUm.getMonstroId(0)));
+                            jogadorDois.setLimitepGolpeAtual(0, jogadorDois.getLimitepGolpeAtual(0) - 1);
+        } else if (escolhaAtaqueJogadorDois == 2) {
+
+            danoTotal = dano(monstros.getForca(jogadorDois.getMonstroId(0)),
+                    monstros.getDefesa(jogadorUm.getMonstroId(0)),
+                    monstros.getsGolpe(jogadorDois.getMonstroId(0)).getDano())
+                    * vantagem(monstros.getsGolpe(jogadorDois.getMonstroId(0)).getElemento(),
+                            monstros.getElemento(jogadorUm.getMonstroId(0)));
+                            jogadorDois.setLimitesGolpeAtual(0, jogadorDois.getLimitesGolpeAtual(0) - 1);
+        }
+        System.out.printf("Dano causado: %.2f\n", danoTotal);
+        Thread.sleep(1000);
+        jogadorUm.setVidaAtual(0, jogadorUm.getVidaAtual(0) - danoTotal);
+        if (jogadorUm.getVidaAtual(0) <= 0.0) {
+            System.out.println("O monstro do " + jogadorUm.getNome() + " foi nocauteado.Ele retorna para a bolsa.");
+            Thread.sleep(1000);
+            if (jogadorUm.getVidaAtual(1) > 0.0) {
+                id = 1;
+                // System.out.println("Id: "+id);
+            } else if (jogadorUm.getVidaAtual(2) > 0.0) {
+                id = 2;
+                // System.out.println("Id: "+id);
+            } else if (jogadorUm.getVidaAtual(0) <= 0.0 && jogadorUm.getVidaAtual(1) <= 0.0
+                    && jogadorUm.getVidaAtual(2) <= 0) {
+                System.out.println("Todos os seus monstros foram nocauteados.");
+                return 0.0;
+            }
+            // System.out.println("Id: "+id);
+            int tempoMonstroId = jogadorUm.getMonstroId(0);
+            double tempoVidaMonstro = jogadorUm.getVidaMonstro(0);
+            double tempoVidaAtual = jogadorUm.getVidaAtual(0);
+            int tempoLimitepGolpeAtual = jogadorUm.getLimitepGolpeAtual(0);
+            int tempoLimitesGolpeAtual = jogadorUm.getLimitesGolpeAtual(0);
+
+            jogadorUm.setMonstroId(0, jogadorUm.getMonstroId(id));
+            jogadorUm.setVidaMonstro(0, jogadorUm.getVidaMonstro(id));
+            jogadorUm.setVidaAtual(0, jogadorUm.getVidaAtual(id));
+            jogadorUm.setLimitepGolpeAtual(0, jogadorUm.getLimitepGolpeAtual(id));
+            jogadorUm.setLimitesGolpeAtual(0, jogadorUm.getLimitesGolpeAtual(id));
+
+            jogadorUm.setMonstroId(id, tempoMonstroId);
+            jogadorUm.setVidaMonstro(id, tempoVidaMonstro);
+            jogadorUm.setVidaAtual(id, tempoVidaAtual);
+            jogadorUm.setLimitepGolpeAtual(id, tempoLimitepGolpeAtual);
+            jogadorUm.setLimitesGolpeAtual(id, tempoLimitesGolpeAtual);
+            System.out.println("Entra em batalha: " + monstros.getNomeMonstro(jogadorUm.getMonstroId(0)));
+            Thread.sleep(1000);
+            return 0.0;
+        }
+        return danoTotal;
+    }
+}
